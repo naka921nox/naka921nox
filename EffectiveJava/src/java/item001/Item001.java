@@ -1,4 +1,4 @@
-package java.item;
+package java.item001;
 
 public class Item001 {
 	/* 項目001：コンストラクタの代わりに static ファクトリーメソッドを検討する */
