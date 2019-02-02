@@ -1,6 +1,7 @@
 package java.item004;
 
 public class UtilityClass {
+	// テスト用
 	/* 項目004：private のコンストラクタでインスタンス化不可能を強制する */
 	
 	// コンストラクタはprivateでアクセス制限
