@@ -1,6 +1,6 @@
 package jp.iterator;
 
-public class BookShelf implements Aggregte {
+public class BookShelf implements Aggregate {
     private Book[] books;
     private int last = 0;
 

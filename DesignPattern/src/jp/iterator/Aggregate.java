@@ -1,5 +1,5 @@
 package jp.iterator;
 
-public interface Aggregte{
+public interface Aggregate {
     public abstract Iterator iterator();
 }
