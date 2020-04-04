@@ -1,0 +1,34 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Debug (Launch) - Current File",
+      "request": "launch",
+      "mainClass": "${file}"
+    },
+    {
+      "type": "java",
+      "name": "Debug (Launch)-Main<DesignPattern>",
+      "request": "launch",
+      "mainClass": "jp.adapter.Main",
+      "projectName": "DesignPattern"
+    },
+    {
+      "type": "java",
+      "name": "Debug (Launch)-Main<DesignPattern>(1)",
+      "request": "launch",
+      "mainClass": "jp.adapter.practice.Main",
+      "projectName": "DesignPattern"
+    },
+    {
+      "type": "java",
+      "name": "Debug (Launch)-Main<DesignPattern>(2)",
+      "request": "launch",
+      "mainClass": "jp.iterator.Main",
+      "projectName": "DesignPattern"
+    }
+  ]
+}
