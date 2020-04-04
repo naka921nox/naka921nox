@@ -1,0 +1,8 @@
+tasks:
+  - init: echo "Replace me with a build script for the project."
+    command: echo "Replace me with something that should run on every start, or just
+      remove me entirely."
+
+vscode:
+  extensions:
+    - vscode.java@1.39.1:T6DzZ88gtMmNdp9L8bYlqw==
