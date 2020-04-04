@@ -1,8 +1,10 @@
 package jp.adapter.extend;
 
-public class PrintBanner extends Banner implements Print{
+import jp.adapter.Banner;
 
-    public PrintBanner(String str) {
+public class ExtendPrintBanner extends Banner implements ExtendPrint{
+
+    public ExtendPrintBanner(String str) {
         super(str);
     }
 

@@ -1,6 +1,6 @@
-package jp.adapter.extend;
+package jp.adapter.delegate;
 
-public interface Print {
+public abstract class DelegatePrint {
     public abstract void printWeak();
     public abstract void printStrong();
 }

@@ -1,4 +1,4 @@
-package jp.adapter.extend;
+package jp.adapter;
 
 public class Banner {
     private String str;
