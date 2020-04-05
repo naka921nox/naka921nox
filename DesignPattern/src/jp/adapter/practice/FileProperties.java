@@ -7,6 +7,11 @@ import java.util.Properties;
 
 public class FileProperties extends Properties implements FileIO {
 
+    /**
+     * UID
+     */
+    private static final long serialVersionUID = 1L;
+
     @Override
     public void readFromFile(String fileName) throws IOException {
         load(new FileInputStream(fileName));
