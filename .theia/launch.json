@@ -7,6 +7,13 @@
         "type": "java",
         "name": "CodeLens (Launch) - Main",
         "request": "launch",
+        "mainClass": "jp.singleton.Main",
+        "projectName": "DesignPattern"
+    },
+    {
+        "type": "java",
+        "name": "CodeLens (Launch) - Main",
+        "request": "launch",
         "mainClass": "jp.templateMethod.Main",
         "projectName": "DesignPattern"
     },
