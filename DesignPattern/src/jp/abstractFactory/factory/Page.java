@@ -18,9 +18,9 @@ public abstract class Page {
         content.add(item);
     }
     public void output() {
-        try {
+        try{
             String fileName = title + ".html";
-            Writer writer = new FileWriter(fileName);
+            Writer writer= new FileWriter(fileName);
             writer.write(this.makeHTML());
             writer.close();
             System.out.println(fileName + "make it !");
