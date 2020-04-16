@@ -8,7 +8,7 @@ public class CountDisplay extends Display {
     }
     public void multiDisplay(int time) {
         open();
-        for (int i = 0; i < time; i ++) {
+        for (int i = 0; i < time; i++) {
             print();
         }
         close();

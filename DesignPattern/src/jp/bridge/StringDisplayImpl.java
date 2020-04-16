@@ -6,6 +6,7 @@ public class StringDisplayImpl extends DisplayImpl {
 
     public StringDisplayImpl(String string) {
        this.string = string;
+       this.width = string.getBytes().length;
     }
 
     public void rawOpen(){
@@ -20,9 +21,9 @@ public class StringDisplayImpl extends DisplayImpl {
         printLine();
     }
     private void printLine() {
-        System.out.println("+");
-        for(int i = 0; i< width; i++) {
-            System.out.println("-");
+        System.out.print("+");
+        for(int i = 0; i < width; i++) {
+            System.out.print("-");
         }
         System.out.println("+");
     }
