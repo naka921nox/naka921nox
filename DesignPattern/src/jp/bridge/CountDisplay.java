@@ -6,7 +6,7 @@ public class CountDisplay extends Display {
         super(impl);
         // TODO Auto-generated constructor stub
     }
-    public void mulutiDisplay(int time) {
+    public void multiDisplay(int time) {
         open();
         for (int i = 0; i < time; i ++) {
             print();
