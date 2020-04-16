@@ -10,5 +10,6 @@ public class Main {
         d2.display();
         d3.display();
         d3.multiDisplay(5);
-    }    
+    }
+
 }
