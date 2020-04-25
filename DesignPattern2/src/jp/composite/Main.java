@@ -1,5 +1,7 @@
 package jp.composite;
 
+import jp.visitor.ListableVisitor;
+
 public class Main {
     public static void main(String[] args) {
         try {
@@ -13,7 +15,10 @@ public class Main {
             rootdir.add(usrdir);
             bindir.add(new File("vi", 10000));
             bindir.add(new File("latex", 20000));
+            // compositeパターンの場合
             rootdir.printList();
+            // visitorパターンの場合
+            rootdir.accept(new ListableVisitor());
 
             System.out.println(" ");
             System.out.println("Making root entity");
@@ -30,7 +35,10 @@ public class Main {
             maiko.add(new File("memo", 50));
             toru.add(new File("ngame", 10000));
             takao.add(new File("magazine", 4000));
+            // compositeパターンの場合
             rootdir.printList();
+            // visitorパターンの場合
+            rootdir.accept(new ListableVisitor());
         } catch (FileTreatmentException e) {
             e.getStackTrace();
         }

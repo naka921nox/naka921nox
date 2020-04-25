@@ -1,6 +1,8 @@
 package jp.composite;
 
-public abstract class Entry {
+import jp.visitor.Element;
+
+public abstract class Entry implements Element {
     protected abstract String getName();
     protected abstract int getSize();
     public Entry add(Entry entry) throws FileTreatmentException {
