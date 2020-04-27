@@ -1,0 +1,2 @@
+aaaaa@aaaaa.aaaa=Test Taro
+bbbbb@bbbbb.bbbb=Test Hanako
