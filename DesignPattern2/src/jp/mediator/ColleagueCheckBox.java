@@ -6,7 +6,7 @@ import java.awt.event.TextEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-public class ColleagueCheckBox extends Checkbox implements ItemListener, Colleague {
+public class ColleagueCheckBox extends Checkbox implements ItemListener, SampleColleague {
 
 	/**
 	 * UID.

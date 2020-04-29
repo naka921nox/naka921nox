@@ -2,7 +2,7 @@ package jp.mediator;
 
 import java.awt.Button;
 
-public class ColleagueButton extends Button implements Colleague {
+public class ColleagueButton extends Button implements SampleColleague {
 
 	/**
 	 * UID.

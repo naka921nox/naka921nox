@@ -5,7 +5,7 @@ import java.awt.TextField;
 import java.awt.event.TextEvent;
 import java.awt.event.TextListener;
 
-public class ColleagueTextField extends TextField implements TextListener, Colleague {
+public class ColleagueTextField extends TextField implements TextListener, SampleColleague {
 
 	/**
 	 * UID.
