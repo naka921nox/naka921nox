@@ -3,7 +3,6 @@ package jp.mediator;
 import java.awt.Frame;
 import java.awt.Label;
 import java.awt.Color;
-import java.awt.ActiveEvent;
 import java.awt.CheckboxGroup;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
