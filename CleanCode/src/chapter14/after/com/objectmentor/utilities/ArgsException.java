@@ -70,15 +70,11 @@ public class ArgsException extends Exception {
 			return String.format("'%c' is not a valid argument name.", errorArgumentId);
 		case INVALID_ARGUMENT_FORMAT:
 			return String.format("'%s' is not a valid argument format.", errorParameter);
-		case MISSING_MAP:
-			return String.format("Could not find map string for -%c.", errorArgumentId);
-		case MALFORMED_MAP:
-			return String.format("Map string for -%c is not of form k1:v1,k2:v2...", errorArgumentId);
 		}
 		return "";
 	}
 
 	public enum ErrorCode {
-		OK, INVALID_ARGUMENT_FORMAT, UNEXPECTED_ARGUMENT, INVALID_ARGUMENT_NAME, MISSING_STRING, MISSING_INTEGER, INVALID_INTEGER, MISSING_DOUBLE, MALFORMED_MAP, MISSING_MAP, INVALID_DOUBLE
+		OK, INVALID_ARGUMENT_FORMAT, UNEXPECTED_ARGUMENT, INVALID_ARGUMENT_NAME, MISSING_STRING, MISSING_INTEGER, INVALID_INTEGER, MISSING_DOUBLE, INVALID_DOUBLE
 	}
 }

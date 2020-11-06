@@ -1,5 +1,7 @@
 package chapter14.after.com.objectmentor.utilities;
 
+import static chapter14.after.com.objectmentor.utilities.ArgsException.ErrorCode.*;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,7 +9,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import static chapter14.after.com.objectmentor.utilities.ArgsException.ErrorCode.*;
 
 
 
@@ -30,7 +31,7 @@ public class Args {
 		if (elementTail.length() == 0) {
 			marshalers.put(elementId, new BooleanArgumentMarshaler());
 		} else if (elementTail.equals("*")) {
-			marshalers.put(elementId, new ] StringArgumentMarshaler());
+			marshalers.put(elementId, new StringArgumentMarshaler());
 		} else if (elementTail.equals("# ")) {
 			marshalers.put(elementId, new IntegerArgumentMarshaler());
 		} else if (elementTail.equals("# # ")) {
