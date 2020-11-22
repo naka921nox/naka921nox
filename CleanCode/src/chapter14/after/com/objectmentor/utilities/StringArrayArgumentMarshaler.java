@@ -8,7 +8,7 @@ import chapter14.after.com.objectmentor.utilities.ArgsException.ErrorCode;
 
 public class StringArrayArgumentMarshaler implements ArgumentMarshaler {
 
-	private ArrayList<String> stringArrayValue = new ArrayList();
+	private ArrayList<String> stringArrayValue = new ArrayList<>();
 
 	public void set(Iterator<String> currentArgument) throws ArgsException {
 		try {
