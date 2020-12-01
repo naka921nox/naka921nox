@@ -187,12 +187,10 @@ public class Args {
 	}
 
 	public boolean getBoolean(char arg) {
-		return failIfNull(booleanArgs.get(arg).getBoolean());
+		Args.ArgumentMarshaler am = booleanArgs.get(arg);
+		return am != null && am.getBoolean();
 	}
 
-	private boolean failIfNull(Boolean b) {
-		return b == null ? false : b;
-	}
 
 	public String getString(char arg) {
 		return failIfNull(stringArgs.get(arg));
