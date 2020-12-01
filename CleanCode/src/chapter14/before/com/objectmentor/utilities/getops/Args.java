@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import chapter14.after.com.objectmentor.utilities.ArgsException;
+import chapter14.before.com.objectmentor.utilities.ArgumentMarshaler;
+
 public class Args {
 	private String schema;
 	private String[] args;
@@ -122,7 +125,7 @@ public class Args {
 		}
 	}
 
-	private boolean setArgument(char argChar) {
+	private boolean setArgument(char argChar) throws ArgsException {
 		boolean set = true;
 		if (isBoolean(argChar)) {
 			setBooleanArg(argChar, true);
@@ -134,14 +137,15 @@ public class Args {
 		return set;
 	}
 
-	private void setStringArg(char argChar, String s) {
+	private void setStringArg(char argChar, String s)  throws ArgsException {
 		currentArgument++;
 		try {
-			stringArgs.get(argChar).setString(args[currentArgument]);
+			stringArgs.get(argChar).set(args[currentArgument]);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			valid = false;
 			errorArgument = argChar;
 			errorCode = ErrorCode.MISSING_STRING;
+			throw new ArgsException("");
 		}
 	}
 
@@ -150,7 +154,7 @@ public class Args {
 	}
 
 	private void setBooleanArg(char argChar, boolean value) {
-		booleanArgs.get(argChar).setBoolean(value);
+		booleanArgs.get(argChar).set("true");
 	}
 
 	private boolean isBoolean(char argChar) {
@@ -187,13 +191,13 @@ public class Args {
 	}
 
 	public boolean getBoolean(char arg) {
-		Args.ArgumentMarshaler am = booleanArgs.get(arg);
-		return am != null && am.getBoolean();
+		ArgumentMarshaler am = booleanArgs.get(arg);
+		return am != null && (Boolean)am.get();
 	}
 
 	public String getString(char arg) {
-		Args.ArgumentMarshaler am = stringArgs.get(arg);
-		return am == null ? "" : am.getString();
+		ArgumentMarshaler am = stringArgs.get(arg);
+		return am == null ? "" : (String)am.get();
 	}
 
 
@@ -201,35 +205,43 @@ public class Args {
 		return argsFound.contains(arg);
 	}
 
-	private class ArgumentMarshaler {
-
+	private class BooleanArgumentMarshaler extends ArgumentMarshaler {
 		private boolean booleanValue = false;
-		private String stringValue;
-
-		public void setBoolean(boolean value) {
-			booleanValue = value;
+		@Override
+		public void set(String s) {
+			booleanValue = true;
 		}
 
-		public boolean getBoolean() {
+		@Override
+		public Object get() {
 			return booleanValue;
 		}
 
-		public void setString(String s) {
-			this.stringValue = s;
-		}
-
-		public String getString() {
-			return stringValue == null ? "" : stringValue;
-		}
-
-	}
-
-	private class BooleanArgumentMarshaler extends ArgumentMarshaler {
 	}
 
 	private class StringArgumentMarshaler extends ArgumentMarshaler {
+		private String stringValue = null;
+
+		@Override
+		public void set(String s) {
+			stringValue = s;
+		}
+
+		@Override
+		public Object get() {
+			return stringValue;
+		}
 	}
 
 	private class IntegarArgumentMarshaler extends ArgumentMarshaler {
+
+		@Override
+		public void set(String s) {
+		}
+
+		@Override
+		public Object get() {
+			return null;
+		}
 	}
 }
