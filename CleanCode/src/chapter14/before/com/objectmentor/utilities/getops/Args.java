@@ -193,7 +193,7 @@ public class Args {
 
 	public String getString(char arg) {
 		Args.ArgumentMarshaler am = stringArgs.get(arg);
-		return am != null ? "" : am.getString();
+		return am == null ? "" : am.getString();
 	}
 
 
