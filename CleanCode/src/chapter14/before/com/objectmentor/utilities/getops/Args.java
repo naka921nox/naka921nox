@@ -13,17 +13,18 @@ import chapter14.before.com.objectmentor.utilities.ArgumentMarshaler;
 public class Args {
 	private String schema;
 	private String[] args;
-	private boolean valid;
+	private boolean valid = true;
 	private Set<Character> unexpectedArguments = new TreeSet<>();
 	private Map<Character, ArgumentMarshaler> marshalers = new HashMap<>();
 	private Set<Character> argsFound = new HashSet<>();
 	private int currentArgument;
 	private char errorArgument = '\0';
+	private String errorParamater = "TILT";
 	private ErrorCode errorCode = ErrorCode.OK;
 	private int numberOfArguments = 0;
 
 	enum ErrorCode {
-		OK, MISSING_STRING
+		OK, MISSING_STRING,UNEXPECTES_ARGUMENT
 	}
 
 	public Args(String schema, String[] args) throws ParseException {
@@ -41,7 +42,10 @@ public class Args {
 			return true;
 		}
 		parseSchema();
-		parseArguments();
+		try {
+			parseArguments();
+		} catch (ArgsException e) {
+		}
 		return valid;
 	}
 
@@ -63,6 +67,9 @@ public class Args {
 			marshalers.put(elementId, new BooleanArgumentMarshaler());
 		} else if (isStringSchemaElement(elementTail)) {
 			marshalers.put(elementId, new StringArgumentMarshaler());
+		} else {
+			throw new ParseException(String.format("引数: %c の書式が不正です:%s.",
+					elementId, elementTail), 0);
 		}
 	}
 
@@ -81,15 +88,7 @@ public class Args {
 		return elementTail.length() == 0;
 	}
 
-	private void parseBooleanSchemaElement(String element) {
-		BooleanArgumentMarshaler m = new BooleanArgumentMarshaler();
-		char c = element.charAt(0);
-		if (Character.isLetter(c)) {
-			marshalers.put(c, m);
-		}
-	}
-
-	private boolean parseArguments() {
+	private boolean parseArguments() throws ArgsException {
 		for (currentArgument = 0; currentArgument < args.length; currentArgument++) {
 			String arg = args[currentArgument];
 			parseArgument(arg);
@@ -97,25 +96,27 @@ public class Args {
 		return true;
 	}
 
-	private void parseArgument(String arg) {
+	private void parseArgument(String arg) throws ArgsException {
 		if (arg.startsWith("-")) {
 			parseElements(arg);
 		}
 	}
 
-	private void parseElements(String arg) {
+	private void parseElements(String arg) throws ArgsException {
 		for (int i = 1; i < arg.length(); i++) {
 			parseElement(arg.charAt(i));
 		}
 	}
 
-	private void parseElement(char argChar) {
+	private void parseElement(char argChar) throws ArgsException {
 		ArgumentMarshaler m = marshalers.get(argChar);
 		if (m instanceof BooleanArgumentMarshaler) {
 			numberOfArguments++;
 			setBooleanArg(m);
 		} else {
 			unexpectedArguments.add(argChar);
+			errorCode = ErrorCode.UNEXPECTES_ARGUMENT;
+			valid = false;
 		}
 	}
 
@@ -124,8 +125,8 @@ public class Args {
 		try {
 			if (m instanceof BooleanArgumentMarshaler) {
 				setBooleanArg(m);
-			} else if (isStringArg(m)) {
-				setStringArg(argChar, "");
+			} else if (m instanceof StringArgumentMarshaler) {
+				setStringArg(m);
 			} else {
 				return false;
 			}
@@ -137,13 +138,13 @@ public class Args {
 		return true;
 	}
 
-	private void setStringArg(char argChar, String s) throws ArgsException {
+	private void setStringArg(ArgumentMarshaler m) throws ArgsException {
 		currentArgument++;
+		String paramater = null;
 		try {
-			marshalers.get(argChar).set(args[currentArgument]);
+			paramater = args[currentArgument];
+			m.set(args[currentArgument]);
 		} catch (ArrayIndexOutOfBoundsException e) {
-			valid = false;
-			errorArgument = argChar;
 			errorCode = ErrorCode.MISSING_STRING;
 			throw new ArgsException("");
 		}
