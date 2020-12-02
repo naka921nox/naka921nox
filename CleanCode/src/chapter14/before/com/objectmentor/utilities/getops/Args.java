@@ -15,8 +15,7 @@ public class Args {
 	private String[] args;
 	private boolean valid;
 	private Set<Character> unexpectedArguments = new TreeSet<>();
-	private Map<Character, ArgumentMarshaler> booleanArgs = new HashMap<>();
-	private Map<Character, ArgumentMarshaler> stringArgs = new HashMap<>();
+	private Map<Character, ArgumentMarshaler> marshalers = new HashMap<>();
 	private Set<Character> argsFound = new HashSet<>();
 	private int currentArgument;
 	private char errorArgument = '\0';
@@ -61,20 +60,17 @@ public class Args {
 		String elementTail = element.substring(1);
 		validateSchemaElementId(elementId);
 		if (isBooleanSchemaElement(elementTail)) {
-			parseBooleanSchemaElement(elementId);
+			marshalers.put(elementId, new BooleanArgumentMarshaler());
 		} else if (isStringSchemaElement(elementTail)) {
-			parseStringSchemaElement(elementId);
+			marshalers.put(elementId, new StringArgumentMarshaler());
 		}
 	}
 
 	private void validateSchemaElementId(char elementId) throws ParseException {
 		if (!Character.isLetter(elementId)) {
-			throw new ParseException("不正な文字列" + elementId + "が、次の書式に含まれています:" + schema, 0);
+			throw new ParseException(
+					"不正な文字列" + elementId + "が、次の書式に含まれています:" + schema, 0);
 		}
-	}
-
-	private void parseStringSchemaElement(char elementId) {
-		stringArgs.put(elementId, new  StringArgumentMarshaler());
 	}
 
 	private boolean isStringSchemaElement(String elementTail) {
@@ -85,14 +81,11 @@ public class Args {
 		return elementTail.length() == 0;
 	}
 
-	private void parseBooleanSchemaElement(char elementId) {
-		booleanArgs.put(elementId, new BooleanArgumentMarshaler());
-	}
-
 	private void parseBooleanSchemaElement(String element) {
+		BooleanArgumentMarshaler m = new BooleanArgumentMarshaler();
 		char c = element.charAt(0);
 		if (Character.isLetter(c)) {
-			booleanArgs.put(c, new BooleanArgumentMarshaler());
+			marshalers.put(c, m);
 		}
 	}
 
@@ -117,30 +110,37 @@ public class Args {
 	}
 
 	private void parseElement(char argChar) {
-		if (isBoolean(argChar)) {
+		ArgumentMarshaler m = marshalers.get(argChar);
+		if (m instanceof BooleanArgumentMarshaler) {
 			numberOfArguments++;
-			setBooleanArg(argChar, true);
+			setBooleanArg(m);
 		} else {
 			unexpectedArguments.add(argChar);
 		}
 	}
 
 	private boolean setArgument(char argChar) throws ArgsException {
-		boolean set = true;
-		if (isBoolean(argChar)) {
-			setBooleanArg(argChar, true);
-		} else if (isString(argChar)) {
-			setStringArg(argChar, "");
-		} else {
-			set = false;
+		ArgumentMarshaler m = marshalers.get(argChar);
+		try {
+			if (m instanceof BooleanArgumentMarshaler) {
+				setBooleanArg(m);
+			} else if (isStringArg(m)) {
+				setStringArg(argChar, "");
+			} else {
+				return false;
+			}
+		} catch (ArgsException e) {
+			valid = false;
+			errorArgument = argChar;
+			throw e;
 		}
-		return set;
+		return true;
 	}
 
-	private void setStringArg(char argChar, String s)  throws ArgsException {
+	private void setStringArg(char argChar, String s) throws ArgsException {
 		currentArgument++;
 		try {
-			stringArgs.get(argChar).set(args[currentArgument]);
+			marshalers.get(argChar).set(args[currentArgument]);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			valid = false;
 			errorArgument = argChar;
@@ -149,16 +149,12 @@ public class Args {
 		}
 	}
 
-	private boolean isString(char argChar) {
-		return stringArgs.containsKey(argChar);
+	private boolean isStringArg(ArgumentMarshaler m) {
+		return m instanceof StringArgumentMarshaler;
 	}
 
-	private void setBooleanArg(char argChar, boolean value) {
-		booleanArgs.get(argChar).set("true");
-	}
-
-	private boolean isBoolean(char argChar) {
-		return booleanArgs.containsKey(argChar);
+	private void setBooleanArg(ArgumentMarshaler m) {
+		m.set("true");
 	}
 
 	public int cardinality() {
@@ -191,15 +187,20 @@ public class Args {
 	}
 
 	public boolean getBoolean(char arg) {
-		ArgumentMarshaler am = booleanArgs.get(arg);
-		return am != null && (Boolean)am.get();
+		ArgumentMarshaler am = marshalers.get(arg);
+		boolean b = false;
+		try {
+			b = am != null && (Boolean) am.get();
+		} catch (ClassCastException e) {
+			b = false;
+		}
+		return b;
 	}
 
 	public String getString(char arg) {
-		ArgumentMarshaler am = stringArgs.get(arg);
-		return am == null ? "" : (String)am.get();
+		ArgumentMarshaler am = marshalers.get(arg);
+		return am == null ? "" : (String) am.get();
 	}
-
 
 	public boolean has(char arg) {
 		return argsFound.contains(arg);
