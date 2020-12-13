@@ -6,12 +6,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
 
-import chapter14.after.com.objectmentor.utilities.ArgsException;
+import chapter14.before.com.objectmentor.utilities.ArgsException;
 import chapter14.before.com.objectmentor.utilities.ArgumentMarshaler;
+import chapter14.before.com.objectmentor.utilities.BooleanArgumentMarshaler;
+import chapter14.before.com.objectmentor.utilities.DoubleArgumentMarshaler;
+import chapter14.before.com.objectmentor.utilities.IntegerArgumentMarshaler;
+import chapter14.before.com.objectmentor.utilities.StringArgumentMarshaler;
 
 public class Args {
 	private String schema;
@@ -67,9 +70,9 @@ public class Args {
 		} else if (elementTail.equals("*")) {
 			marshalers.put(elementId, new StringArgumentMarshaler());
 		} else if (elementTail.equals("#")) {
-			// marshalers.put(elementId, new IntegerArgumentMarshaler());
+			marshalers.put(elementId, new IntegerArgumentMarshaler());
 		} else if (elementTail.equals("##")) {
-			// marshalers.put(elementId, new DoubleArgumentMarshaler());
+			marshalers.put(elementId, new DoubleArgumentMarshaler());
 		} else {
 			throw new ArgsException(String.format("引数: %c の書式が不正です:%s.",
 					elementId, elementTail));
@@ -176,48 +179,5 @@ public class Args {
 
 	public boolean has(char arg) {
 		return argsFound.contains(arg);
-	}
-
-	private class BooleanArgumentMarshaler implements ArgumentMarshaler {
-		private boolean booleanValue = false;
-
-		@Override
-		public Object get() {
-			return booleanValue;
-		}
-
-		@Override
-		public void set(Iterator<String> currentArgument) {
-			booleanValue = true;
-		}
-
-	}
-
-	private class StringArgumentMarshaler implements ArgumentMarshaler {
-		private String stringValue = null;
-		@Override
-		public Object get() {
-			return stringValue;
-		}
-
-		@Override
-		public void set(Iterator<String> currentArgument) throws ArgsException {
-			try {
-				stringValue = currentArgument.next();
-			} catch (NoSuchElementException e) {
-				errorCode = ArgsException.ErrorCode.MISSING_STRING;
-				throw new ArgsException("aaa");
-			}
-		}
-	}
-
-	private class IntegarArgumentMarshaler implements ArgumentMarshaler {
-		@Override
-		public Object get() {
-			return null;
-		}
-		@Override
-		public void set(Iterator<String> currentArgument) {
-		}
 	}
 }
