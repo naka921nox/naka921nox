@@ -1,8 +1,11 @@
 package chapter14.before.com.objectmentor.utilities;
+import java.util.Iterator;
 
-public abstract class ArgumentMarshaler {
+import chapter14.after.com.objectmentor.utilities.ArgsException;
 
-	public abstract void set(String s);
-	public abstract Object get();
+public interface ArgumentMarshaler {
+
+	void set(Iterator<String> currentArgument) throws ArgsException;
+	Object get();
 
 }

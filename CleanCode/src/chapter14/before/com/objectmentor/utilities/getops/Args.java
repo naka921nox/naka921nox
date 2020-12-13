@@ -1,9 +1,12 @@
 package chapter14.before.com.objectmentor.utilities.getops;
 
-import java.text.ParseException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -12,24 +15,20 @@ import chapter14.before.com.objectmentor.utilities.ArgumentMarshaler;
 
 public class Args {
 	private String schema;
-	private String[] args;
 	private boolean valid = true;
 	private Set<Character> unexpectedArguments = new TreeSet<>();
 	private Map<Character, ArgumentMarshaler> marshalers = new HashMap<>();
 	private Set<Character> argsFound = new HashSet<>();
-	private int currentArgument;
+	private Iterator<String> currentArgument;
 	private char errorArgument = '\0';
 	private String errorParamater = "TILT";
-	private ErrorCode errorCode = ErrorCode.OK;
+	private ArgsException.ErrorCode errorCode = ArgsException.ErrorCode.OK;
 	private int numberOfArguments = 0;
+	private List<String> argsList;
 
-	enum ErrorCode {
-		OK, MISSING_STRING,UNEXPECTES_ARGUMENT
-	}
-
-	public Args(String schema, String[] args) throws ParseException {
+	public Args(String schema, String[] args) throws ArgsException {
 		this.schema = schema;
-		this.args = args;
+		argsList = Arrays.asList(args);
 		valid = parse();
 	}
 
@@ -37,8 +36,8 @@ public class Args {
 		return valid;
 	}
 
-	private boolean parse() throws ParseException {
-		if (schema.length() == 0 && args.length == 0) {
+	private boolean parse() throws ArgsException {
+		if (schema.length() == 0 && argsList.size() == 0) {
 			return true;
 		}
 		parseSchema();
@@ -49,7 +48,7 @@ public class Args {
 		return valid;
 	}
 
-	private boolean parseSchema() throws ParseException {
+	private boolean parseSchema() throws ArgsException {
 		for (String element : schema.split(",")) {
 			if (element.length() > 0) {
 				String trimmedElement = element.trim();
@@ -59,38 +58,35 @@ public class Args {
 		return true;
 	}
 
-	private void parseSchemaElement(String element) throws ParseException {
+	private void parseSchemaElement(String element) throws ArgsException {
 		char elementId = element.charAt(0);
 		String elementTail = element.substring(1);
 		validateSchemaElementId(elementId);
-		if (isBooleanSchemaElement(elementTail)) {
+		if (elementTail.length() == 0) {
 			marshalers.put(elementId, new BooleanArgumentMarshaler());
-		} else if (isStringSchemaElement(elementTail)) {
+		} else if (elementTail.equals("*")) {
 			marshalers.put(elementId, new StringArgumentMarshaler());
+		} else if (elementTail.equals("#")) {
+			// marshalers.put(elementId, new IntegerArgumentMarshaler());
+		} else if (elementTail.equals("##")) {
+			// marshalers.put(elementId, new DoubleArgumentMarshaler());
 		} else {
-			throw new ParseException(String.format("引数: %c の書式が不正です:%s.",
-					elementId, elementTail), 0);
+			throw new ArgsException(String.format("引数: %c の書式が不正です:%s.",
+					elementId, elementTail));
 		}
 	}
 
-	private void validateSchemaElementId(char elementId) throws ParseException {
+	private void validateSchemaElementId(char elementId) throws ArgsException {
 		if (!Character.isLetter(elementId)) {
-			throw new ParseException(
-					"不正な文字列" + elementId + "が、次の書式に含まれています:" + schema, 0);
+			throw new ArgsException(
+					"不正な文字列" + elementId + "が、次の書式に含まれています:" + schema);
 		}
-	}
-
-	private boolean isStringSchemaElement(String elementTail) {
-		return elementTail.equals("*");
-	}
-
-	private boolean isBooleanSchemaElement(String elementTail) {
-		return elementTail.length() == 0;
 	}
 
 	private boolean parseArguments() throws ArgsException {
-		for (currentArgument = 0; currentArgument < args.length; currentArgument++) {
-			String arg = args[currentArgument];
+		for (currentArgument = argsList.iterator(); currentArgument
+				.hasNext();) {
+			String arg = currentArgument.next();
 			parseArgument(arg);
 		}
 		return true;
@@ -109,53 +105,28 @@ public class Args {
 	}
 
 	private void parseElement(char argChar) throws ArgsException {
-		ArgumentMarshaler m = marshalers.get(argChar);
-		if (m instanceof BooleanArgumentMarshaler) {
-			numberOfArguments++;
-			setBooleanArg(m);
+		if (setArgument(argChar)) {
+			argsFound.add(argChar);
 		} else {
 			unexpectedArguments.add(argChar);
-			errorCode = ErrorCode.UNEXPECTES_ARGUMENT;
+			errorCode = ArgsException.ErrorCode.UNEXPECTED_ARGUMENT;
 			valid = false;
 		}
 	}
 
 	private boolean setArgument(char argChar) throws ArgsException {
 		ArgumentMarshaler m = marshalers.get(argChar);
+		if (m == null) {
+			return false;
+		}
 		try {
-			if (m instanceof BooleanArgumentMarshaler) {
-				setBooleanArg(m);
-			} else if (m instanceof StringArgumentMarshaler) {
-				setStringArg(m);
-			} else {
-				return false;
-			}
+			m.set(currentArgument);
+			return true;
 		} catch (ArgsException e) {
 			valid = false;
 			errorArgument = argChar;
 			throw e;
 		}
-		return true;
-	}
-
-	private void setStringArg(ArgumentMarshaler m) throws ArgsException {
-		currentArgument++;
-		String paramater = null;
-		try {
-			paramater = args[currentArgument];
-			m.set(args[currentArgument]);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			errorCode = ErrorCode.MISSING_STRING;
-			throw new ArgsException("");
-		}
-	}
-
-	private boolean isStringArg(ArgumentMarshaler m) {
-		return m instanceof StringArgumentMarshaler;
-	}
-
-	private void setBooleanArg(ArgumentMarshaler m) {
-		m.set("true");
 	}
 
 	public int cardinality() {
@@ -207,43 +178,46 @@ public class Args {
 		return argsFound.contains(arg);
 	}
 
-	private class BooleanArgumentMarshaler extends ArgumentMarshaler {
+	private class BooleanArgumentMarshaler implements ArgumentMarshaler {
 		private boolean booleanValue = false;
-		@Override
-		public void set(String s) {
-			booleanValue = true;
-		}
 
 		@Override
 		public Object get() {
 			return booleanValue;
 		}
 
-	}
-
-	private class StringArgumentMarshaler extends ArgumentMarshaler {
-		private String stringValue = null;
-
 		@Override
-		public void set(String s) {
-			stringValue = s;
+		public void set(Iterator<String> currentArgument) {
+			booleanValue = true;
 		}
 
+	}
+
+	private class StringArgumentMarshaler implements ArgumentMarshaler {
+		private String stringValue = null;
 		@Override
 		public Object get() {
 			return stringValue;
 		}
-	}
-
-	private class IntegarArgumentMarshaler extends ArgumentMarshaler {
 
 		@Override
-		public void set(String s) {
+		public void set(Iterator<String> currentArgument) throws ArgsException {
+			try {
+				stringValue = currentArgument.next();
+			} catch (NoSuchElementException e) {
+				errorCode = ArgsException.ErrorCode.MISSING_STRING;
+				throw new ArgsException("aaa");
+			}
 		}
+	}
 
+	private class IntegarArgumentMarshaler implements ArgumentMarshaler {
 		@Override
 		public Object get() {
 			return null;
+		}
+		@Override
+		public void set(Iterator<String> currentArgument) {
 		}
 	}
 }
